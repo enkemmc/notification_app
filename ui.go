@@ -1,4 +1,4 @@
-package ui
+package notification_app
 
 import (
 	"fyne.io/fyne/v2"
