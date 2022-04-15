@@ -1,18 +1,20 @@
 package notification_app
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 	"github.com/enkemmc/notification_app/ui"
 )
 
-func NewNotificationApp() *NotificationApp {
-	// something with ui?
-	accordion, window := ui.StartUI()
+func NewNotificationApp(appid string) *NotificationApp {
+	accordion, window, app := ui.StartUI(appid)
 	return &NotificationApp{
 		data:      make(map[string]*TopicData),
 		accordion: accordion,
 		window:    window,
+		app:       app,
 	}
 }
 
@@ -20,6 +22,7 @@ type NotificationApp struct {
 	data      map[string]*TopicData
 	accordion *widget.Accordion
 	window    *fyne.Window
+	app       *fyne.App
 }
 
 func (app *NotificationApp) AddTopic(provider LinkProvider) {
@@ -34,37 +37,33 @@ func (app *NotificationApp) AddTopic(provider LinkProvider) {
 		for {
 			select {
 			case urls := <-provider.GetUrlsChannel():
-				app.RefreshUrls(urls, provider.GetName())
+				app.refreshUrls(urls, provider.GetName())
+			case <-provider.GetExitChannel():
+				break
 			}
 		}
 	}(ai.Detail.(*fyne.Container))
-	//somewhere in here you need to start a goroutine that sends urlchannel data to this topic's accordionitem
-	//for {
-	//	select {
-	//	case urls := <-provider.GetUrlsChannel():
-	//		for i, url := range urls {
-	//			fmt.Printf("%d %s\n", i, url)
-	//		}
-	//	case <-provider.GetExitChannel():
-	//		break
-	//	}
-	//}
 	app.data[provider.GetName()] = &td
 }
 
-func (app *NotificationApp) RefreshUrls(urls []string, topic string) {
+func (app *NotificationApp) refreshUrls(urls []string, topic string) {
 	td := app.data[topic]
 	vbox := (*td).accordionItem.Detail.(*fyne.Container)
-	//	compare to whats in the urls list first, diff it against what should be visible in the vbox
+	changeCount := 0
 	for _, url := range urls {
 		if _, ok := td.urls[url]; !ok {
-			// this url is new
 			td.urls[url] = true
 			row := ui.BuildNewUrlWrapper(url, vbox)
 			vbox.Add(row)
-			// need to store a reference to this row somewhere so we can call remove when "hide" is clicked
+			changeCount++
 		}
 	}
+	if changeCount > 0 {
+		app.notify(changeCount)
+	}
+}
+func (app *NotificationApp) notify(changes int) {
+	(*app.app).SendNotification(fyne.NewNotification(fmt.Sprintf("%d new updates", changes), ""))
 }
 
 func (app *NotificationApp) Start() {
@@ -79,9 +78,6 @@ type TopicData struct {
 	urls           map[string]bool
 	accordionIndex int
 	accordionItem  *widget.AccordionItem
-}
-
-func start() {
 }
 
 type LinkProvider interface {

@@ -12,9 +12,8 @@ type UI struct {
 	accordion *widget.Accordion
 }
 
-func StartUI() (*widget.Accordion, *fyne.Window) {
-	// do the stuff
-	app := app.NewWithID("someappid")
+func StartUI(appid string) (*widget.Accordion, *fyne.Window, *fyne.App) {
+	app := app.NewWithID(appid)
 	window := app.NewWindow("some window name")
 	content, accordion := buildContent()
 	window.SetContent(fyne.NewContainerWithLayout(
@@ -23,7 +22,7 @@ func StartUI() (*widget.Accordion, *fyne.Window) {
 	))
 	window.Resize(fyne.Size{Width: 400, Height: 320})
 	window.CenterOnScreen()
-	return accordion, &window
+	return accordion, &window, &app
 }
 
 func buildContent() (*fyne.Container, *widget.Accordion) {
@@ -42,7 +41,6 @@ func BuildNewAccordionItem(title string) *widget.AccordionItem {
 		title,
 		container.NewVBox(),
 	)
-
 	return ai
 }
 

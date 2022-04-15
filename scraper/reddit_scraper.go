@@ -46,7 +46,7 @@ func StartRedditScraper() notification_app.LinkProvider {
 
 func startFetchLoop() (chan []string, chan bool) {
 	tools.PrintWithTimestamp("starting fetch loop")
-	defaultDuration := 10 * time.Second
+	defaultDuration := 30 * time.Second
 	ticker := time.NewTicker(defaultDuration)
 	done := make(chan bool)
 
