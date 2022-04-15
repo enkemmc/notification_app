@@ -1,28 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"time"
-
+	"github.com/enkemmc/notification_app/notification_app"
 	"github.com/enkemmc/notification_app/scraper"
+	"github.com/enkemmc/notification_app/tools"
 )
 
 func main() {
-	urlsChan := scraper.StartFetchLoop()
-	exitChan := make(chan bool)
-	go func(exitChan chan bool) {
-		time.Sleep(60)
-		exitChan <- true
-
-	}(exitChan)
-	for {
-		select {
-		case urls := <-urlsChan:
-			for i, url := range urls {
-				fmt.Printf("%d %s\n", i, url)
-			}
-		case <-exitChan:
-			return
-		}
-	}
+	tools.PrintWithTimestamp("starting")
+	provider := scraper.StartRedditScraper()
+	app := notification_app.NewNotificationApp()
+	app.AddTopic(provider)
+	app.Start()
 }

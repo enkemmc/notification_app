@@ -9,38 +9,70 @@ import (
 	"strings"
 	"time"
 
+	"github.com/enkemmc/notification_app/notification_app"
 	"github.com/enkemmc/notification_app/tools"
 )
 
 const APP_NAME_HEADER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36 Edg/99.0.1150.46"
 
 // these are search terms we're looking for in posts
-var STRING_HITS = [...]string{"code", "prerelease"}
+var STRING_HITS = [...]string{"code", "prerelease", "cutting"}
 
-func StartFetchLoop() chan []string {
+type RedditScraper struct {
+	exitChan chan bool
+	urlsChan chan []string
+	name     string
+}
+
+func (rs *RedditScraper) GetUrlsChannel() chan []string {
+	return rs.urlsChan
+}
+func (rs *RedditScraper) GetExitChannel() chan bool {
+	return rs.exitChan
+}
+func (rs *RedditScraper) GetName() string {
+	return rs.name
+}
+
+func StartRedditScraper() notification_app.LinkProvider {
+	urlsChan, exitChan := startFetchLoop()
+	name := "reddit_scraper"
+	return &RedditScraper{
+		exitChan,
+		urlsChan,
+		name,
+	}
+}
+
+func startFetchLoop() (chan []string, chan bool) {
 	tools.PrintWithTimestamp("starting fetch loop")
-	ticker := time.NewTicker(30 * time.Second)
+	defaultDuration := 10 * time.Second
+	ticker := time.NewTicker(defaultDuration)
 	done := make(chan bool)
 
-	urlsChan := make(chan []string)
-	fetchAndSend(urlsChan)
+	urlsChan := make(chan []string, 10) // interestingly, if we dont set a length, this will block
+	tickImmediately := make(chan bool)
+	fetchAndSend(urlsChan, tickImmediately)
 
-	go func(urlsChan chan []string) {
+	go func(urlsChan chan []string, tickNow chan bool) {
 		for {
 			select {
 			case <-done:
 				return
 			case <-ticker.C:
-				fetchAndSend(urlsChan)
+				fetchAndSend(urlsChan, tickNow)
+			case <-tickNow:
+				go fetchAndSend(urlsChan, tickNow)
+				ticker.Reset(defaultDuration)
 			}
 		}
-	}(urlsChan)
+	}(urlsChan, tickImmediately)
 
-	return urlsChan
+	return urlsChan, done
 }
 
-func fetchAndSend(urlsChan chan []string) {
-	urlsMap := fetchAndRead()
+func fetchAndSend(urlsChan chan []string, tickNow chan bool) {
+	urlsMap := fetchAndRead(tickNow)
 	urls := []string{}
 	for url, _ := range urlsMap {
 		urls = append(urls, url)
@@ -49,7 +81,7 @@ func fetchAndSend(urlsChan chan []string) {
 }
 
 // returns a set of imgPaths
-func fetchAndRead() map[string]bool {
+func fetchAndRead(tickNow chan bool) map[string]bool {
 	url := "https://www.reddit.com/r/MagicArena/new/.rss?sort=new"
 	client := http.Client{
 		Transport: &http.Transport{
@@ -73,7 +105,11 @@ func fetchAndRead() map[string]bool {
 	set := make(map[string]bool) // this set will contain the urls to any images that match our conditions
 	// check server status here
 	if res.StatusCode == 429 {
-		tools.PrintWithTimestamp("returned a 429 code")
+		tools.PrintWithTimestamp("returned a 429 code\nretrying in 5 seconds")
+		go func(tickNow chan bool) {
+			time.Sleep(5 * time.Second)
+			tickNow <- true
+		}(tickNow)
 		return set
 	} else {
 		tools.PrintWithTimestamp("returned a 200 code")
