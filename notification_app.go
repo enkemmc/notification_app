@@ -5,11 +5,10 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"github.com/enkemmc/notification_app/ui"
 )
 
 func NewNotificationApp(appid string) *NotificationApp {
-	accordion, window, app := ui.StartUI(appid)
+	accordion, window, app := StartUI(appid)
 	return &NotificationApp{
 		data:      make(map[string]*TopicData),
 		accordion: accordion,
@@ -26,7 +25,7 @@ type NotificationApp struct {
 }
 
 func (app *NotificationApp) AddTopic(provider LinkProvider) {
-	ai := ui.BuildNewAccordionItem(provider.GetName())
+	ai := BuildNewAccordionItem(provider.GetName())
 	td := TopicData{
 		urls:           make(map[string]bool),
 		accordionIndex: app.getNewIndex(),
@@ -53,7 +52,7 @@ func (app *NotificationApp) refreshUrls(urls []string, topic string) {
 	for _, url := range urls {
 		if _, ok := td.urls[url]; !ok {
 			td.urls[url] = true
-			row := ui.BuildNewUrlWrapper(url, vbox)
+			row := BuildNewUrlWrapper(url, vbox)
 			vbox.Add(row)
 			changeCount++
 		}
