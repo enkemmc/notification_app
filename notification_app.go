@@ -2,6 +2,7 @@ package notification_app
 
 import (
 	"fmt"
+	"net/url"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
@@ -52,9 +53,11 @@ func (app *NotificationApp) refreshUrls(urls []string, topic string) {
 	for _, url := range urls {
 		if _, ok := td.urls[url]; !ok {
 			td.urls[url] = true
-			row := BuildNewUrlWrapper(url, vbox)
-			vbox.Add(row)
-			changeCount++
+			row, err := BuildNewUrlWrapper(url, vbox, app.openURL)
+			if err == nil {
+				vbox.Add(row)
+				changeCount++
+			}
 		}
 	}
 	if changeCount > 0 {
@@ -63,6 +66,11 @@ func (app *NotificationApp) refreshUrls(urls []string, topic string) {
 }
 func (app *NotificationApp) notify(changes int) {
 	(*app.app).SendNotification(fyne.NewNotification(fmt.Sprintf("%d new updates", changes), ""))
+}
+
+func (app *NotificationApp) openURL(urlString *url.URL) {
+	fmt.Printf("attempting to open the url: %s\n", urlString.String())
+	(*app.app).OpenURL(urlString)
 }
 
 func (app *NotificationApp) Start() {
