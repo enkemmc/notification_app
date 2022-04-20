@@ -16,7 +16,7 @@ type UI struct {
 
 func StartUI(appid string) (*widget.Accordion, *fyne.Window, *fyne.App) {
 	app := app.NewWithID(appid)
-	window := app.NewWindow("some window name")
+	window := app.NewWindow("Notifications")
 	content, accordion := buildContent()
 	window.SetContent(fyne.NewContainerWithLayout(
 		layout.NewBorderLayout(content, nil, nil, nil),
@@ -46,7 +46,9 @@ func BuildNewAccordionItem(title string) *widget.AccordionItem {
 	return ai
 }
 
-func BuildNewUrlWrapper(urlString string, vbox *fyne.Container, openURLfunc func(url *url.URL)) (fyne.CanvasObject, error) {
+func BuildNewUrlWrapper(urlData *UrlData, vbox *fyne.Container, openURLfunc func(url *url.URL)) (fyne.CanvasObject, error) {
+	urlString := (*urlData).GetUrl()
+	elapsedTime := (*urlData).GetElapsedTime()
 	parsedUrl, err := url.Parse(urlString)
 	if err != nil {
 		return nil, err
@@ -54,6 +56,9 @@ func BuildNewUrlWrapper(urlString string, vbox *fyne.Container, openURLfunc func
 		hbox := container.NewHBox()
 		hbox.Add(
 			widget.NewLabel(urlString),
+		)
+		hbox.Add(
+			widget.NewLabel(elapsedTime),
 		)
 		hbox.Add(
 			widget.NewButton("Open", func() {
