@@ -12,6 +12,9 @@
 
 - [Introduction](#introduction)
 - [Screenshots](#screenshots)
+- [Features](#features)
+- [Install](#install)
+- [Example](#example)
 
 ## Introduction
 Lorem Ipsum
@@ -43,7 +46,7 @@ Lorem Ipsum
 go get -u github.com/enkemmc/notification_app
 ``
 
-## Examples
+## Example
 ```go
 package main
 
