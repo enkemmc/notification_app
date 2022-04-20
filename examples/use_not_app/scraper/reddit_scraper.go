@@ -16,45 +16,45 @@ import (
 const APP_NAME_HEADER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36 Edg/99.0.1150.46"
 
 // these are search terms we're looking for in posts
-var STRING_HITS = [...]string{"code", "prerelease", "cutting"}
+var STRING_HITS = [...]string{"code", "prerelease"}
 
 type RedditScraper struct {
 	exitChan chan bool
-	urlsChan chan []string
+	urlsChan chan []*notification_app.UrlData
 	name     string
 }
 
-func (rs *RedditScraper) GetUrlsChannel() chan []string {
+func (rs RedditScraper) GetUrlsChannel() chan []*notification_app.UrlData {
 	return rs.urlsChan
 }
-func (rs *RedditScraper) GetExitChannel() chan bool {
+func (rs RedditScraper) GetExitChannel() chan bool {
 	return rs.exitChan
 }
-func (rs *RedditScraper) GetName() string {
+func (rs RedditScraper) GetName() string {
 	return rs.name
 }
 
 func StartRedditScraper() notification_app.LinkProvider {
 	urlsChan, exitChan := startFetchLoop()
 	name := "reddit_scraper"
-	return &RedditScraper{
+	return RedditScraper{
 		exitChan,
 		urlsChan,
 		name,
 	}
 }
 
-func startFetchLoop() (chan []string, chan bool) {
+func startFetchLoop() (chan []*notification_app.UrlData, chan bool) {
 	go_tools.PrintWithTimestamp("starting fetch loop")
 	defaultDuration := 30 * time.Second
 	ticker := time.NewTicker(defaultDuration)
 	done := make(chan bool)
 
-	urlsChan := make(chan []string, 10) // interestingly, if we dont set a length, this will block
+	urlsChan := make(chan []*notification_app.UrlData, 10) // interestingly, if we dont set a length, this will block
 	tickImmediately := make(chan bool)
 	fetchAndSend(urlsChan, tickImmediately)
 
-	go func(urlsChan chan []string, tickNow chan bool) {
+	go func(urlsChan chan []*notification_app.UrlData, tickNow chan bool) {
 		for {
 			select {
 			case <-done:
@@ -71,17 +71,17 @@ func startFetchLoop() (chan []string, chan bool) {
 	return urlsChan, done
 }
 
-func fetchAndSend(urlsChan chan []string, tickNow chan bool) {
+func fetchAndSend(urlsChan chan []*notification_app.UrlData, tickNow chan bool) {
 	urlsMap := fetchAndRead(tickNow)
-	urls := []string{}
-	for url, _ := range urlsMap {
-		urls = append(urls, url)
+	urls := []*notification_app.UrlData{}
+	for _, entry := range urlsMap {
+		urls = append(urls, entry)
 	}
 	urlsChan <- urls
 }
 
 // returns a set of imgPaths
-func fetchAndRead(tickNow chan bool) map[string]bool {
+func fetchAndRead(tickNow chan bool) map[string]*notification_app.UrlData {
 	url := "https://www.reddit.com/r/MagicArena/new/.rss?sort=new"
 	client := http.Client{
 		Transport: &http.Transport{
@@ -102,7 +102,7 @@ func fetchAndRead(tickNow chan bool) map[string]bool {
 		log.Fatal(err)
 	}
 
-	set := make(map[string]bool) // this set will contain the urls to any images that match our conditions
+	set := make(map[string]*notification_app.UrlData) // this set will contain the urls to any images that match our conditions
 	// check server status here
 	if res.StatusCode == 429 {
 		go_tools.PrintWithTimestamp("returned a 429 code\nretrying in 5 seconds")
@@ -134,7 +134,7 @@ func fetchAndRead(tickNow chan bool) map[string]bool {
 	return set
 }
 
-func searchEntry(entry Entry, matchesSet *map[string]bool) {
+func searchEntry(entry Entry, matchesSet *map[string]*notification_app.UrlData) {
 	// re := regexp.MustCompile(`https://i.redd.it[^"]+`) // this is the regexp we're using to see if the post contains a link to an image in its body.  if it does, its a hit
 	content := strings.ToLower(entry.Content)
 	title := strings.ToLower(entry.Title)
@@ -154,7 +154,8 @@ func searchEntry(entry Entry, matchesSet *map[string]bool) {
 			// if res != nil {
 			// 	(*matchesSet)[string(res)] = true
 			// }
-			(*matchesSet)[entry.Link.Href] = true
+			var lp notification_app.UrlData = entry
+			(*matchesSet)[entry.Link.Href] = &lp
 		}
 	}
 }

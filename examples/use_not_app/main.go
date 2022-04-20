@@ -10,4 +10,5 @@ func main() {
 	app := notification_app.NewNotificationApp("app_name")
 	app.AddTopic(provider)
 	app.Start()
+
 }

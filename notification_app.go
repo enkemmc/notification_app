@@ -46,14 +46,15 @@ func (app *NotificationApp) AddTopic(provider LinkProvider) {
 	app.data[provider.GetName()] = &td
 }
 
-func (app *NotificationApp) refreshUrls(urls []string, topic string) {
+func (app *NotificationApp) refreshUrls(urlDatas []*UrlData, topic string) {
 	td := app.data[topic]
 	vbox := (*td).accordionItem.Detail.(*fyne.Container)
 	changeCount := 0
-	for _, url := range urls {
+	for _, urldata := range urlDatas {
+		url := (*urldata).GetUrl()
 		if _, ok := td.urls[url]; !ok {
 			td.urls[url] = true
-			row, err := BuildNewUrlWrapper(url, vbox, app.openURL)
+			row, err := BuildNewUrlWrapper(urldata, vbox, app.openURL)
 			if err == nil {
 				vbox.Add(row)
 				changeCount++
@@ -69,7 +70,6 @@ func (app *NotificationApp) notify(changes int) {
 }
 
 func (app *NotificationApp) openURL(urlString *url.URL) {
-	fmt.Printf("attempting to open the url: %s\n", urlString.String())
 	(*app.app).OpenURL(urlString)
 }
 
@@ -89,6 +89,12 @@ type TopicData struct {
 
 type LinkProvider interface {
 	GetExitChannel() chan bool
-	GetUrlsChannel() chan []string
+	GetUrlsChannel() chan []*UrlData
 	GetName() string
+}
+
+// use this to store url and timestamp rather than just the url string
+type UrlData interface {
+	GetUrl() string
+	GetElapsedTime() string
 }
