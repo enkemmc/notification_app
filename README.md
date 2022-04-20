@@ -4,7 +4,7 @@
   
 # Notification App
   
-![ajour banner](https://cdn.frankerfacez.com/emoticon/475175/4)
+![ajour banner](./resources/Susge.png)
   
 </div>
   
