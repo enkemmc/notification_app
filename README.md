@@ -18,7 +18,7 @@
 
 ## Introduction
 Basically a crude wrapper around the excellent work by the good folks over at Fyne (https://github.com/fyne-io/fyne)
-This module allows you to receive desktop notifications whenever events occur in your existing codebase by implementing a very simple interface.
+This module allows you to receive desktop notifications whenever events occur in your existing codebase by implementing the LinkProvider interface.
 
 <div align="center">
 
