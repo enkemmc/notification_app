@@ -10,6 +10,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/enkemmc/go_tools v0.0.0-20220415075630-8186c4271f58 h1:sq5wTojJ31QbyEtpZjk5ST9PaBJHQVJ7xnJcv7GCO9g=
 github.com/enkemmc/go_tools v0.0.0-20220415075630-8186c4271f58/go.mod h1:5O+I8TtL+vfLaTIdIWfzHxPVcdPOESG/kMUT0JK6pOs=
+github.com/enkemmc/notification_app v0.0.0-20220415081651-b93bdb663f4c h1:8+jCLmhnu8+gKyxPqAStvuF0iWhD8G0km2lwj0Gfj7Y=
+github.com/enkemmc/notification_app v0.0.0-20220415081651-b93bdb663f4c/go.mod h1:Jiu38A9mI3oebWjkpln9IM4OnZxc29cs6faDUBh/8iY=
 github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3 h1:FDqhDm7pcsLhhWl1QtD8vlzI4mm59llRvNzrFg6/LAA=
 github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3/go.mod h1:CzM2G82Q9BDUvMTGHnXf/6OExw/Dz2ivDj48nVg7Lg8=
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=

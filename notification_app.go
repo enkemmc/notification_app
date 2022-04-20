@@ -2,14 +2,14 @@ package notification_app
 
 import (
 	"fmt"
+	"net/url"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"github.com/enkemmc/notification_app/ui"
 )
 
 func NewNotificationApp(appid string) *NotificationApp {
-	accordion, window, app := ui.StartUI(appid)
+	accordion, window, app := StartUI(appid)
 	return &NotificationApp{
 		data:      make(map[string]*TopicData),
 		accordion: accordion,
@@ -26,7 +26,7 @@ type NotificationApp struct {
 }
 
 func (app *NotificationApp) AddTopic(provider LinkProvider) {
-	ai := ui.BuildNewAccordionItem(provider.GetName())
+	ai := BuildNewAccordionItem(provider.GetName())
 	td := TopicData{
 		urls:           make(map[string]bool),
 		accordionIndex: app.getNewIndex(),
@@ -46,16 +46,19 @@ func (app *NotificationApp) AddTopic(provider LinkProvider) {
 	app.data[provider.GetName()] = &td
 }
 
-func (app *NotificationApp) refreshUrls(urls []string, topic string) {
+func (app *NotificationApp) refreshUrls(urlDatas []*UrlData, topic string) {
 	td := app.data[topic]
 	vbox := (*td).accordionItem.Detail.(*fyne.Container)
 	changeCount := 0
-	for _, url := range urls {
+	for _, urldata := range urlDatas {
+		url := (*urldata).GetUrl()
 		if _, ok := td.urls[url]; !ok {
 			td.urls[url] = true
-			row := ui.BuildNewUrlWrapper(url, vbox)
-			vbox.Add(row)
-			changeCount++
+			row, err := BuildNewUrlWrapper(urldata, vbox, app.openURL)
+			if err == nil {
+				vbox.Add(row)
+				changeCount++
+			}
 		}
 	}
 	if changeCount > 0 {
@@ -64,6 +67,10 @@ func (app *NotificationApp) refreshUrls(urls []string, topic string) {
 }
 func (app *NotificationApp) notify(changes int) {
 	(*app.app).SendNotification(fyne.NewNotification(fmt.Sprintf("%d new updates", changes), ""))
+}
+
+func (app *NotificationApp) openURL(urlString *url.URL) {
+	(*app.app).OpenURL(urlString)
 }
 
 func (app *NotificationApp) Start() {
@@ -82,6 +89,12 @@ type TopicData struct {
 
 type LinkProvider interface {
 	GetExitChannel() chan bool
-	GetUrlsChannel() chan []string
+	GetUrlsChannel() chan []*UrlData
 	GetName() string
+}
+
+// use this to store url and timestamp rather than just the url string
+type UrlData interface {
+	GetUrl() string
+	GetElapsedTime() string
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/enkemmc/notification_app/notification_app"
-	"github.com/enkemmc/notification_app/scraper"
+	"github.com/enkemmc/notification_app"
+	"github.com/enkemmc/use_not_app/scraper"
 )
 
 func main() {
@@ -10,4 +10,5 @@ func main() {
 	app := notification_app.NewNotificationApp("app_name")
 	app.AddTopic(provider)
 	app.Start()
+
 }

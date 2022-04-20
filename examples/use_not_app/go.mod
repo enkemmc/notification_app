@@ -1,12 +1,19 @@
-module github.com/enkemmc/notification_app
+module github.com/enkemmc/use_not_app
 
 go 1.18
 
-require fyne.io/fyne/v2 v2.1.4
+require (
+	github.com/enkemmc/go_tools v0.0.0-20220415075630-8186c4271f58
+	github.com/enkemmc/notification_app v0.0.0-20220415081651-b93bdb663f4c
+)
+
+replace (
+	github.com/enkemmc/notification_app => ../../../notification_app
+)
 
 require (
+	fyne.io/fyne/v2 v2.1.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/enkemmc/go_tools v0.0.0-20220415075630-8186c4271f58 // indirect
 	github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-gl/gl v0.0.0-20210813123233-e4099ee2221f // indirect
