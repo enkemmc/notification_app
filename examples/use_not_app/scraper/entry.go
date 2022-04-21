@@ -29,8 +29,11 @@ func (e Entry) GetElapsedTime() string {
 	return result
 }
 
-func (e Entry) GetUrl() string {
+func (e Entry) GetTitle() string {
 	return e.Title
+}
+func (e Entry) GetUrl() string {
+	return e.Link.Href
 }
 
 type LinkTag struct {

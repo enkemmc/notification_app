@@ -97,4 +97,5 @@ type LinkProvider interface {
 type UrlData interface {
 	GetUrl() string
 	GetElapsedTime() string
+	GetTitle() string
 }

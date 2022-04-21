@@ -47,6 +47,7 @@ func BuildNewAccordionItem(title string) *widget.AccordionItem {
 }
 
 func BuildNewUrlWrapper(urlData *UrlData, vbox *fyne.Container, openURLfunc func(url *url.URL)) (fyne.CanvasObject, error) {
+	title := (*urlData).GetTitle()
 	urlString := (*urlData).GetUrl()
 	elapsedTime := (*urlData).GetElapsedTime()
 	parsedUrl, err := url.Parse(urlString)
@@ -55,7 +56,7 @@ func BuildNewUrlWrapper(urlData *UrlData, vbox *fyne.Container, openURLfunc func
 	} else {
 		hbox := container.NewHBox()
 		hbox.Add(
-			widget.NewLabel(urlString),
+			widget.NewLabel(title),
 		)
 		hbox.Add(
 			widget.NewLabel(elapsedTime),
@@ -66,7 +67,7 @@ func BuildNewUrlWrapper(urlData *UrlData, vbox *fyne.Container, openURLfunc func
 			}),
 		)
 		hbox.Add(
-			widget.NewButton("remove", func() {
+			widget.NewButton("Clear", func() {
 				vbox.Remove(hbox)
 			}),
 		)
