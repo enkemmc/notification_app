@@ -1,7 +1,10 @@
 package notification_app
 
 import (
+	"log"
 	"net/url"
+	"path/filepath"
+	"runtime"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -14,8 +17,18 @@ type UI struct {
 	accordion *widget.Accordion
 }
 
+const iconPath = "/resources/Susge.png"
+
 func StartUI(appid string) (*widget.Accordion, *fyne.Window, *fyne.App) {
 	app := app.NewWithID(appid)
+	_, path, _, _ := runtime.Caller(0)
+	path = filepath.Join(filepath.Dir(path), iconPath)
+	r, err := fyne.LoadResourceFromPath(path)
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		app.SetIcon(r)
+	}
 	window := app.NewWindow("Notifications")
 	content, accordion := buildContent()
 	window.SetContent(fyne.NewContainerWithLayout(
