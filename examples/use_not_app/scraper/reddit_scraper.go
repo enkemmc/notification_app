@@ -2,10 +2,12 @@ package scraper
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"encoding/xml"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -16,7 +18,7 @@ import (
 const APP_NAME_HEADER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36 Edg/99.0.1150.46"
 
 // these are search terms we're looking for in posts
-var STRING_HITS = [...]string{"code", "prerelease"}
+var STRING_HITS []string
 
 type RedditScraper struct {
 	exitChan chan bool
@@ -35,6 +37,11 @@ func (rs RedditScraper) GetName() string {
 }
 
 func StartRedditScraper() notification_app.LinkProvider {
+	if bs, err := os.ReadFile("scraper/terms.json"); err == nil {
+		err = json.Unmarshal(bs, &STRING_HITS)
+	} else {
+		log.Fatal(err)
+	}
 	urlsChan, exitChan := startFetchLoop()
 	name := "reddit_scraper"
 	return RedditScraper{
