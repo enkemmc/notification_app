@@ -33,8 +33,10 @@ func getDataAndSendToUiThroughChannel(exitChannel chan bool, urlsChannel chan []
 		case <-ticker.C:
 			// generate two random data items to simulate timestamped events
 			var di1, di2 notification_app.UrlData
-			di1 = MyDataItem{fmt.Sprintf("http://www.%s.com", RandStringBytesMask(10)), time.Now()}
-			di2 = MyDataItem{fmt.Sprintf("http://www.%s.com", RandStringBytesMask(10)), time.Now()}
+			di1String := fmt.Sprintf("http://www.%s.com", RandStringBytesMask(10))
+			di2String := fmt.Sprintf("http://www.%s.com", RandStringBytesMask(10))
+			di1 = MyDataItem{di1String, di1String, time.Now()}
+			di2 = MyDataItem{di2String, di2String, time.Now()}
 			fabricatedData := []*notification_app.UrlData{&di1, &di2}
 			for i, u := range fabricatedData {
 				url := (*u).GetUrl()
@@ -48,15 +50,21 @@ func getDataAndSendToUiThroughChannel(exitChannel chan bool, urlsChannel chan []
 
 type MyDataItem struct {
 	url              string
+	title            string
 	lastModifiedDate time.Time
+}
+
+func (this MyDataItem) GetTitle() string {
+	return this.title
+}
+
+func (this MyDataItem) GetUrl() string {
+	return this.url
 }
 
 func (this MyDataItem) GetElapsedTime() string {
 	elapsed := time.Since(this.lastModifiedDate)
 	return elapsed.Round(time.Second).String()
-}
-func (this MyDataItem) GetUrl() string {
-	return this.url
 }
 
 type MyStruct struct {

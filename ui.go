@@ -35,7 +35,7 @@ func StartUI(appid string) (*widget.Accordion, *fyne.Window, *fyne.App) {
 		layout.NewBorderLayout(content, nil, nil, nil),
 		content,
 	))
-	window.Resize(fyne.Size{Width: 400, Height: 320})
+	window.Resize(fyne.Size{Width: 700, Height: 400})
 	window.CenterOnScreen()
 	return accordion, &window, &app
 }
@@ -67,23 +67,18 @@ func BuildNewUrlWrapper(urlData *UrlData, vbox *fyne.Container, openURLfunc func
 	if err != nil {
 		return nil, err
 	} else {
-		hbox := container.NewHBox()
-		hbox.Add(
-			widget.NewLabel(title),
-		)
-		hbox.Add(
-			widget.NewLabel(elapsedTime),
-		)
-		hbox.Add(
-			widget.NewButton("Open", func() {
-				openURLfunc(parsedUrl)
-			}),
-		)
-		hbox.Add(
-			widget.NewButton("Clear", func() {
-				vbox.Remove(hbox)
-			}),
-		)
+		var hbox *fyne.Container
+		titleLabel := widget.NewLabel(title)
+		spacer := layout.NewSpacer()
+		timeLabel := widget.NewLabel(elapsedTime)
+		openBut := widget.NewButton("Open", func() {
+			openURLfunc(parsedUrl)
+		})
+		clearBut := widget.NewButton("Clear", func() {
+			vbox.Remove(hbox)
+		})
+		hbox = fyne.NewContainerWithLayout(layout.NewHBoxLayout(), titleLabel, spacer, timeLabel, openBut, clearBut)
+
 		return hbox, nil
 	}
 }
