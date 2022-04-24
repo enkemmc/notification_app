@@ -1,4 +1,4 @@
-package scraper
+package ukraine_scraper
 
 import (
 	"encoding/xml"

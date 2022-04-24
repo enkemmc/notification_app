@@ -1,4 +1,4 @@
-package scraper
+package reddit_scraper
 
 import (
 	"crypto/tls"
@@ -37,13 +37,13 @@ func (rs RedditScraper) GetName() string {
 }
 
 func StartRedditScraper() notification_app.LinkProvider {
-	if bs, err := os.ReadFile("scraper/terms.json"); err == nil {
+	if bs, err := os.ReadFile("reddit_scraper/terms.json"); err == nil {
 		err = json.Unmarshal(bs, &STRING_HITS)
 	} else {
 		log.Fatal(err)
 	}
 	urlsChan, exitChan := startFetchLoop()
-	name := "reddit_scraper"
+	name := "Reddit Scraper"
 	return RedditScraper{
 		exitChan,
 		urlsChan,
@@ -53,7 +53,7 @@ func StartRedditScraper() notification_app.LinkProvider {
 
 func startFetchLoop() (chan []*notification_app.UrlData, chan bool) {
 	go_tools.PrintWithTimestamp("starting fetch loop")
-	defaultDuration := 30 * time.Second
+	defaultDuration := 10 * time.Second
 	ticker := time.NewTicker(defaultDuration)
 	done := make(chan bool)
 
