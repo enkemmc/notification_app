@@ -13,5 +13,4 @@ func main() {
 	app.AddTopic(redditProvider)
 	app.AddTopic(ukraineProvider)
 	app.Start()
-
 }

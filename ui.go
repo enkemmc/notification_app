@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -59,6 +60,8 @@ func BuildNewAccordionItem(title string) *widget.AccordionItem {
 	return ai
 }
 
+// this is currently an hbox with the children:
+// 		label, spacer, label, button, button
 func BuildNewUrlWrapper(urlData *UrlData, vbox *fyne.Container, openURLfunc func(url *url.URL)) (fyne.CanvasObject, error) {
 	title := (*urlData).GetTitle()
 	urlString := (*urlData).GetUrl()
@@ -71,11 +74,27 @@ func BuildNewUrlWrapper(urlData *UrlData, vbox *fyne.Container, openURLfunc func
 		titleLabel := widget.NewLabel(title)
 		spacer := layout.NewSpacer()
 		timeLabel := widget.NewLabel(elapsedTime)
+		// start a goroutine for updating the label's elapsed time
+		exit := make(chan bool)
+		go func(urlData *UrlData, exit chan bool) {
+			ticker := time.NewTicker(time.Second)
+			for {
+				select {
+				case <-ticker.C:
+					timeLabel.Text = (*urlData).GetElapsedTime()
+					timeLabel.Refresh()
+				case <-exit:
+					ticker.Stop()
+					return
+				}
+			}
+		}(urlData, exit)
 		openBut := widget.NewButton("Open", func() {
 			openURLfunc(parsedUrl)
 		})
 		clearBut := widget.NewButton("Clear", func() {
 			vbox.Remove(hbox)
+			exit <- true
 		})
 		hbox = fyne.NewContainerWithLayout(layout.NewHBoxLayout(), titleLabel, spacer, timeLabel, openBut, clearBut)
 

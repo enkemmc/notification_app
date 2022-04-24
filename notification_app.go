@@ -46,6 +46,10 @@ func (app *NotificationApp) AddTopic(provider LinkProvider) {
 	app.data[provider.GetName()] = &td
 }
 
+func (app *NotificationApp) Start() {
+	(*app.window).ShowAndRun()
+}
+
 func (app *NotificationApp) refreshUrls(urlDatas []*UrlData, topic string) {
 	td := app.data[topic]
 	vbox := (*td).accordionItem.Detail.(*fyne.Container)
@@ -59,12 +63,15 @@ func (app *NotificationApp) refreshUrls(urlDatas []*UrlData, topic string) {
 				vbox.Add(row)
 				changeCount++
 			}
+		} else {
+			// update the time
 		}
 	}
 	if changeCount > 0 {
 		app.notify(changeCount)
 	}
 }
+
 func (app *NotificationApp) notify(changes int) {
 	(*app.app).SendNotification(fyne.NewNotification(fmt.Sprintf("%d new updates", changes), ""))
 }
@@ -73,14 +80,14 @@ func (app *NotificationApp) openURL(urlString *url.URL) {
 	(*app.app).OpenURL(urlString)
 }
 
-func (app *NotificationApp) Start() {
-	(*app.window).ShowAndRun()
-}
-
 func (app *NotificationApp) getNewIndex() int {
 	return len(app.data)
 }
 
+// this holds the state of the app
+// urls is the set of urls
+// accordionIndex is index of this accordionItem in the accordion
+// accordionItem is a pointer to the accordionItem widget itself
 type TopicData struct {
 	urls           map[string]bool
 	accordionIndex int
