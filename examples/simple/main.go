@@ -11,7 +11,7 @@ import (
 func main() {
   fmt.Println("starting")
 	provider := GetProvider()
-	app := notification_app.NewNotificationApp("123")
+	app := notification_app.NewNotificationApp("My App Name")
 	app.AddTopic(provider)
 	app.Start()
 }
@@ -25,7 +25,7 @@ func GetProvider() notification_app.LinkProvider {
 }
 
 func getDataAndSendToUiThroughChannel(exitChannel chan bool, urlsChannel chan []*notification_app.UrlData) {
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(30 * time.Second)
 	for {
 		select {
 		case <-exitChannel:
