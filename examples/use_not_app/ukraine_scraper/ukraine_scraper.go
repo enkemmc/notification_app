@@ -41,7 +41,7 @@ func StartUkraineScraper() notification_app.LinkProvider {
 		log.Fatal(err)
 	}
 	urlsChannel, exitChannel := startFetchLoop()
-	name := "Ukraine Scraper"
+	name := "UATV Youtube"
 	return UkraineScraper{
 		urlsChannel,
 		exitChannel,
@@ -50,8 +50,7 @@ func StartUkraineScraper() notification_app.LinkProvider {
 }
 
 func startFetchLoop() (chan bool, chan []*notification_app.UrlData) {
-	go_tools.PrintWithTimestamp("starting fetch loop")
-	defaultDuration := 10 * time.Second
+	defaultDuration := 60 * time.Second
 	ticker := time.NewTicker(defaultDuration)
 	done := make(chan bool)
 
@@ -106,7 +105,7 @@ func fetchAndRead(tickNow chan bool) map[string]*notification_app.UrlData {
 		log.Fatal(err)
 	}
 
-	set := make(map[string]*notification_app.UrlData) // this set will contain the urls to any images that match our conditions
+	set := make(map[string]*notification_app.UrlData) // this set will contain the urls to any yt videos
 	// check server status here
 	if res.StatusCode == 429 {
 		go_tools.PrintWithTimestamp("returned a 429 code\nretrying in 5 seconds")

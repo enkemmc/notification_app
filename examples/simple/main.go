@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+  fmt.Println("starting")
 	provider := GetProvider()
 	app := notification_app.NewNotificationApp("123")
 	app.AddTopic(provider)

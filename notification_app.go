@@ -94,6 +94,7 @@ type TopicData struct {
 	accordionItem  *widget.AccordionItem
 }
 
+// this interface allows the notification app to access your data and update the ui
 type LinkProvider interface {
 	GetExitChannel() chan bool
 	GetUrlsChannel() chan []*UrlData
