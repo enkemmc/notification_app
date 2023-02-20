@@ -97,7 +97,6 @@ func BuildNewUrlWrapper(urlData *UrlData, vbox *fyne.Container, openURLfunc func
 			exit <- true
 		})
 		hbox = fyne.NewContainerWithLayout(layout.NewHBoxLayout(), titleLabel, spacer, timeLabel, openBut, clearBut)
-
 		return hbox, nil
 	}
 }
